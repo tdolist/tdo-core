@@ -1,6 +1,4 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-    }
-}
+#![feature(custom_derive)]
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
