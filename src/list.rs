@@ -33,10 +33,10 @@ impl Tdo {
         super::serde_json::from_reader(&file).unwrap()
     }
 
-    pub fn save(path: &str, tdo: Tdo) -> Result<(), StorageError> {
+    pub fn save(&self, path: &str) -> Result<(), StorageError> {
         match File::create(path) {
             Ok(mut f) => {
-                let _ = super::serde_json::to_writer_pretty(&mut f, &tdo);
+                let _ = super::serde_json::to_writer_pretty(&mut f, self);
                 Ok(())
             },
             Err(_) => Err(StorageError::FileCorrupted)
