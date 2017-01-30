@@ -28,9 +28,10 @@ impl Tdo {
         Tdo { lists: Vec::new() }
     }
 
-    pub fn load(path: &str) -> Tdo {
+    pub fn load(&mut self, path: &str) {
         let file = File::open(path).unwrap();
-        super::serde_json::from_reader(&file).unwrap()
+        let json: Tdo = super::serde_json::from_reader(&file).unwrap();
+        self.lists = json.lists;
     }
 
     pub fn save(&self, path: &str) -> Result<(), StorageError> {
