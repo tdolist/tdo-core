@@ -1,9 +1,9 @@
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Todo {
-    id: u32,
-    name: String,
-    done: bool,
+    pub id: u32,
+    pub name: String,
+    pub done: bool,
 }
 
 
