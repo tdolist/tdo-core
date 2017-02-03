@@ -1,6 +1,6 @@
 use todo::Todo;
 use std::fs::File;
-use storage::StorageError;
+use error::{StorageError, TodoError};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TodoList {
@@ -14,6 +14,42 @@ impl TodoList {
         TodoList {
             name: name.to_string(),
             list: Vec::new(),
+        }
+    }
+
+    pub fn list_undone(&self) -> Vec<Todo> {
+        let mut undone: Vec<Todo> = vec![];
+        for entry in self.to_owned().list.into_iter() {
+            if !entry.done{
+                undone.push(entry);
+            }
+        }
+        undone
+    }
+
+    pub fn add(&mut self, new_todo: Todo) {
+        self.list.push(new_todo);
+    }
+
+    pub fn remove_name(&mut self, name: &str) -> Result<Todo, TodoError> {
+        match self.list.iter().position(|x| x.name == name.to_string()){
+            Some(index) => Ok(self.list.remove(index)),
+            None => Err(TodoError::NotInList)
+        }
+    }
+
+    pub fn remove_id(&mut self, id: u32) -> Result<Todo, TodoError> {
+        match self.list.iter().position(|x| x.id == id){
+            Some(index) => Ok(self.list.remove(index)),
+            None => Err(TodoError::NotInList)
+        }
+    }
+
+    pub fn clean(&mut self) {
+        for entry in self.to_owned().list.into_iter() {
+            if entry.done {
+                let _ = self.remove_id(entry.id);
+            }
         }
     }
 }
@@ -30,10 +66,7 @@ impl Tdo {
 
     pub fn load(path: &str) -> Result<Tdo, super::serde_json::Error> {
         let file = File::open(path).unwrap();
-        match super::serde_json::from_reader(&file) {
-            Ok(res) => Ok(res),
-            Err(err) => Err(err)
-        }
+        super::serde_json::from_reader(&file)
     }
 
     pub fn save(&self, path: &str) -> Result<(), StorageError> {

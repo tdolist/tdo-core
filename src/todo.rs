@@ -15,5 +15,11 @@ impl Todo {
             done: false,
         }
     }
+    pub fn edit(&mut self, new_name: &str) {
+        self.name = new_name.to_string();
+    }
+    pub fn set_done(&mut self) {
+        self.done = true;
+    }
 
 }
