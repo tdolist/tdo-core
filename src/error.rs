@@ -2,7 +2,7 @@
 #[allow(dead_code)]
 pub enum StorageError {
     FileCorrupted,
-    SaveFailure
+    SaveFailure,
 }
 
 
@@ -10,4 +10,5 @@ pub enum StorageError {
 #[allow(dead_code)]
 pub enum TodoError {
     NotInList,
+    NoSuchList,
 }
