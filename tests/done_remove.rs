@@ -37,8 +37,8 @@ mod interact {
         tdo.add_todo("test", todo::Todo::new(0, "First Entry"));
         tdo.add_todo("test", todo::Todo::new(1, "Second Entry"));
 
-        tdo.lists[0].done_id(0);
-        assert!(tdo.lists[0].list[0].done);
+        tdo.lists[1].done_id(0);
+        assert!(tdo.lists[1].list[0].done);
     }
 
     #[test]
@@ -54,7 +54,7 @@ mod interact {
 
         tdo.done_id(0);
         tdo.clean_lists();
-        assert_eq!(tdo.lists[0].list.len(), tdo2.lists[0].list.len());
+        assert_eq!(tdo.lists[1].list.len(), tdo2.lists[1].list.len());
     }
 
     #[test]
@@ -65,7 +65,7 @@ mod interact {
         tdo.add_todo("test", todo::Todo::new(1, "Second Entry"));
 
         tdo.done_id(0);
-        assert!(tdo.lists[0].list[0].done);
+        assert!(tdo.lists[1].list[0].done);
     }
 
 }

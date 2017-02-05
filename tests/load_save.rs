@@ -26,7 +26,7 @@ mod storage {
         tdo.save("foo2.json");
 
         let new_tdo = list::Tdo::load("foo2.json").unwrap();
-        assert_eq!(new_tdo.lists[0].list[0].name, "First Entry");
+        assert_eq!(new_tdo.lists[1].list[0].name, "First Entry");
     }
 
 }
