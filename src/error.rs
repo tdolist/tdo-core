@@ -3,6 +3,7 @@
 pub enum StorageError {
     FileCorrupted,
     SaveFailure,
+    FileNotFound,
 }
 
 
