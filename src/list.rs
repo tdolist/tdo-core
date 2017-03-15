@@ -1,11 +1,14 @@
+//! General implementation of the base Struct and TodoLists.
 use todo::Todo;
 use std::fs::File;
 use error::{StorageError, TodoError};
 
-/// The representation of a todo list
+/// The representation of a todo list.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TodoList {
+    /// Name of the list.
     pub name: String,
+    /// The actual vector of Todos.
     pub list: Vec<Todo>,
 }
 
@@ -98,6 +101,7 @@ impl Default for TodoList {
 /// The representation of all TodoLists
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tdo {
+    /// A vector of all lists.
     pub lists: Vec<TodoList>,
 }
 
