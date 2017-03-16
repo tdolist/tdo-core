@@ -4,7 +4,7 @@ use std::fmt;
 use std::convert::From;
 
 /// Custom Result for tdo.
-pub type TdoResult = Result<(), ErrorKind>;
+pub type TdoResult<T> = Result<T, ErrorKind>;
 
 /// Enum to collect all tdo errors.
 #[derive(Clone, Copy, Debug)]
