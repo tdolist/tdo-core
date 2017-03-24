@@ -1,5 +1,5 @@
 //! This is the core for every tdo application
-#![deny(missing_docs,
+#![deny(missing_docs, unsafe_code,
         missing_copy_implementations,
         trivial_casts, trivial_numeric_casts,
         unused_import_braces, unused_qualifications)]
