@@ -1,20 +1,26 @@
-//! General implementation of the base Struct and TodoLists.
-use todo::Todo;
+//! General implementation of todo lists and the base structure.
+
 use std::fs::File;
+
+use todo::Todo;
 use error::{StorageError, TodoError};
 
-/// The representation of a todo list.
+
+/// Simple todo list structure.
+///
+/// Todos can be grouped together in so called todo lists (as in the real world).
+/// Therefore, the `TodoList` struct can be used. It's a simple data structure that holds a number of `Todo` items and offers all basic functions for managing them.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TodoList {
-    /// Name of the list.
+    /// Name of the todo list.
     pub name: String,
-    /// The actual vector of Todos.
+    /// The actual vector of `Todo` items.
     pub list: Vec<Todo>,
 }
 
 
 impl TodoList {
-    /// Create a new list with the given name
+    /// Create a new list with the given name.
     ///
     /// # Example
     ///
@@ -29,7 +35,7 @@ impl TodoList {
         }
     }
 
-    /// Add a new todo to the list
+    /// Add a new todo to the list.
     ///
     /// # Example
     ///
@@ -45,9 +51,9 @@ impl TodoList {
     }
 
 
-    /// Mark a todo with the given id as done
+    /// Mark a todo from the list with the given ID as done.
     ///
-    /// This function returns a `ResultType` wich will contain a `TodoError::NotInList` if the list does not contain any todo with the given id.
+    /// This function returns a `ResultType`, which will contain a `TodoError::NotInList` if the list does not contain any todo with the given ID.
     pub fn done_id(&mut self, id: u32) -> Result<(), TodoError> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list[index].set_done()),
@@ -55,9 +61,9 @@ impl TodoList {
         }
     }
 
-    /// Remove a todo with the given id
+    /// Remove a todo with the given IDfrom the list.
     ///
-    /// This function returns a `ResultType` wich will contain the removed Todo itself of a `TodoError::NotInList` if the list does not contain any todo with the given id.
+    /// This function returns a `ResultType`, which will contain the removed Todo itself or a `TodoError::NotInList` if the list does not contain any todo with the given id.
     pub fn remove_id(&mut self, id: u32) -> Result<Todo, TodoError> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list.remove(index)),
@@ -65,9 +71,9 @@ impl TodoList {
         }
     }
 
-    /// Search for all undone todos in the list
+    /// Search for all undone todos in the list.
     ///
-    /// Returns a Vector of all undone todos.
+    /// Returns a vector of all undone todos.
     pub fn list_undone(&self) -> Vec<Todo> {
         let mut undone: Vec<Todo> = vec![];
         for entry in self.to_owned().list.into_iter() {
@@ -78,7 +84,7 @@ impl TodoList {
         undone
     }
 
-    /// Remove all done todos of the list
+    /// Remove all done todos from the list.
     pub fn clean(&mut self) {
         for entry in self.to_owned().list.into_iter() {
             if entry.done {
@@ -88,7 +94,8 @@ impl TodoList {
     }
 }
 
-/// Instanciates the default TodoList of a new Tdo
+/// Instanciates a _default_ `TodoList`.
+/// This function is invoked when a `Tdo` container structure is instanciated.
 impl Default for TodoList {
     fn default() -> TodoList {
         TodoList {
@@ -98,15 +105,22 @@ impl Default for TodoList {
     }
 }
 
-/// The representation of all TodoLists
+
+/// Basic container structure for a set of todo lists.
+///
+/// This data structure acts as a conatiner for all todo lists and its associated todos.
+/// The whole `tdo` microcosm settles around this structure which is also used for (de-)serialization.
+///
+/// When instanciated, it comes with an empty _default_ list.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tdo {
-    /// A vector of all lists.
+    /// A vector of all todo lists.
     pub lists: Vec<TodoList>,
 }
 
 impl Tdo {
-    /// Create a new Tdo with a default `TodoList`
+    /// Create a new `Tdo` container.
+    /// Each new container is instanciated with a _default_ `TodoList`.
     ///
     /// # Example
     ///
@@ -118,9 +132,9 @@ impl Tdo {
         Tdo { lists: vec![TodoList::default()] }
     }
 
-    /// Load a saved Tdo from JSON
+    /// Load a saved `Tdo` container from a JSON file.
     ///
-    /// This function returns a `ResultType` wich will contain the deserialized JSON as a `Tdo` or a `serde_json::Error`.
+    /// This function returns a `ResultType` which will yield the deserialized JSON or a `serde_json::Error`.
     ///
     /// # Example
     ///
@@ -133,9 +147,9 @@ impl Tdo {
         super::serde_json::from_reader(&file)
     }
 
-    /// Dump the Tdo to JSON
+    /// Dump the `Tdo` container to a JSON file.
     ///
-    /// This function returns a `ResultType` with an `StorageError::SaveFailure` if there could not be created a JSON file.
+    /// This function returns a `ResultType` yielding a `StorageError::SaveFailure` if the JSON file could not be opened/saved.
     ///
     /// # Example
     ///
@@ -146,6 +160,9 @@ impl Tdo {
     /// assert_eq!(res.unwrap(), ());
     /// ```
     pub fn save(&self, path: &str) -> Result<(), StorageError> {
+        // TODO: At this point we could be much more precise about the error if we would include
+        // the error from the file system as SaveFailure(ArbitraryErrorFromFS)
+        //  -- Feliix42 (2017-03-14; 17:04)
         match File::create(path) {
             Ok(mut f) => {
                 let _ = super::serde_json::to_writer_pretty(&mut f, self);
@@ -155,14 +172,14 @@ impl Tdo {
         }
     }
 
-    /// Add a list
+    /// Add a todo list to the container.
     pub fn add_list(&mut self, list: TodoList) {
         self.lists.push(list);
     }
 
-    /// Add a todo to the given list
+    /// Add a todo to the todo list, identified by its name.
     ///
-    /// This function returns a `ResultType` with an `TodoError::NoSuchList` if there is no matching list found.
+    /// This function returns a `ResultType` with a `TodoError::NoSuchList` if there is no matching list found.
     pub fn add_todo(&mut self, list_name: &str, todo: Todo) -> Result<(), TodoError> {
         match self.get_list_index(&list_name) {
             Ok(index) => {
@@ -173,27 +190,31 @@ impl Tdo {
         }
     }
 
-    /// Cycle through all lists and mark a todo with the given id as done
+    /// Cycle through all todo lists and mark a todo with the given IDas done.
+    /// This function has no return value and thus won't indicate whether there was a matching todo found.
     pub fn done_id(&mut self, id: u32) {
         for list in 0..self.lists.len() {
             let _ = self.lists[list].done_id(id);
         }
     }
 
-    /// Cycle through all lists and remove a todo with the given id
+    /// Cycle through all todo lists and remove a todo with the given id.
+    /// This function has no return value and thus won't indicate whether there was a matching todo found.
     pub fn remove_id(&mut self, id: u32) {
         for mut list in self.to_owned().lists.into_iter() {
             let _ = list.remove_id(id);
         }
     }
 
-    /// Remove all done todos from all lists
+    /// Remove all todos that have been marked as _done_ from all todo lists.
     pub fn clean_lists(&mut self) {
         for list in 0..self.lists.len() {
             self.lists[list].clean();
         }
     }
 
+    // TODO: Shouldn't the return type rather be u32 than usize? (Since IDs are handled as u32 throughout the program)
+    //  -- Feliix42 (2017-03-24; 17:22)
     fn get_list_index(&self, name: &str) -> Result<usize, TodoError> {
         match self.lists.iter().position(|x| x.name == name.to_string()) {
             Some(index) => Ok(index),
