@@ -68,4 +68,19 @@ mod interact {
         assert!(tdo.lists[1].list[0].done);
     }
 
+    #[test]
+    #[should_panic]
+    fn removing_default() {
+        let mut tdo = list::Tdo::new();
+        tdo.remove_list("default").unwrap();
+    }
+
+    #[test]
+    fn removing_lists() {
+        let mut tdo = list::Tdo::new();
+        tdo.add_list(list::TodoList::new("deletion")).unwrap();
+        tdo.remove_list("deletion").unwrap();
+        assert_eq!(list::Tdo::new().lists.len(), tdo.lists.len())
+    }
+
 }

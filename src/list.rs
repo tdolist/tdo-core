@@ -3,7 +3,7 @@
 use std::fs::File;
 
 use todo::Todo;
-use error::{StorageError, TodoError};
+use error::*;
 
 
 /// Simple todo list structure.
@@ -61,7 +61,7 @@ impl TodoList {
         }
     }
 
-    /// Remove a todo with the given IDfrom the list.
+    /// Remove a todo with the given ID from the list.
     ///
     /// This function returns a `ResultType`, which will contain the removed Todo itself or a `TodoError::NotInList` if the list does not contain any todo with the given id.
     pub fn remove_id(&mut self, id: u32) -> Result<Todo, TodoError> {
@@ -116,6 +116,8 @@ impl Default for TodoList {
 pub struct Tdo {
     /// A vector of all todo lists.
     pub lists: Vec<TodoList>,
+    /// The tdo version the last dump was saved with.
+    version: String,
 }
 
 impl Tdo {
@@ -129,7 +131,10 @@ impl Tdo {
     /// let tdo = Tdo::new();
     /// ```
     pub fn new() -> Tdo {
-        Tdo { lists: vec![TodoList::default()] }
+        Tdo {
+            lists: vec![TodoList::default()],
+            version: env!("CARGO_PKG_VERSION").to_string(),
+        }
     }
 
     /// Load a saved `Tdo` container from a JSON file.
@@ -173,8 +178,25 @@ impl Tdo {
     }
 
     /// Add a todo list to the container.
-    pub fn add_list(&mut self, list: TodoList) {
+    pub fn add_list(&mut self, list: TodoList) -> TdoResult<()> {
+        // TODO: Need to check if list already exists.
         self.lists.push(list);
+        Ok(())
+    }
+
+    /// Removes a list from the container.
+    pub fn remove_list(&mut self, list_name: &str) -> TdoResult<()>{
+        if list_name == "default" {
+            Err(TodoError::CanNotRemoveDefault.into())
+        } else {
+            match self.get_list_index(list_name) {
+                Ok(index) => {
+                    self.lists.remove(index);
+                    Ok(())
+                },
+                Err(_) => Err(TodoError::NoSuchList.into()),
+            }
+        }
     }
 
     /// Add a todo to the todo list, identified by its name.
@@ -213,10 +235,9 @@ impl Tdo {
         }
     }
 
-    // TODO: Shouldn't the return type rather be u32 than usize? (Since IDs are handled as u32 throughout the program)
-    //  -- Feliix42 (2017-03-24; 17:22)
+
     fn get_list_index(&self, name: &str) -> Result<usize, TodoError> {
-        match self.lists.iter().position(|x| x.name == name.to_string()) {
+        match self.lists.iter().position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
             Some(index) => Ok(index),
             None => Err(TodoError::NoSuchList),
         }

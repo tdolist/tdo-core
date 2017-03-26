@@ -62,6 +62,8 @@ pub enum TodoError {
     NotInList,
     /// The requested todo list does not exist.
     NoSuchList,
+    /// The default list is tried to be removed.
+    CanNotRemoveDefault,
 }
 
 impl fmt::Display for TodoError {
@@ -75,6 +77,7 @@ impl Error for TodoError {
         match *self {
             TodoError::NotInList => "Todo is not in this list",
             TodoError::NoSuchList => "No such list",
+            TodoError::CanNotRemoveDefault => "The default list can no be removed"
         }
     }
 }
