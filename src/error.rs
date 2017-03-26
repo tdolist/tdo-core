@@ -64,6 +64,10 @@ pub enum TodoError {
     NoSuchList,
     /// The default list is tried to be removed.
     CanNotRemoveDefault,
+    /// A list with the same name already exists.
+    NameAlreadyExists,
+    /// A todo with the same ID already exists.
+    IDAlreadyExists,
 }
 
 impl fmt::Display for TodoError {
@@ -77,7 +81,9 @@ impl Error for TodoError {
         match *self {
             TodoError::NotInList => "Todo is not in this list",
             TodoError::NoSuchList => "No such list",
-            TodoError::CanNotRemoveDefault => "The default list can no be removed"
+            TodoError::CanNotRemoveDefault => "The default list can no be removed",
+            TodoError::NameAlreadyExists => "There already exists a list with this name",
+            TodoError::IDAlreadyExists => "There already exists a todo with this ID",
         }
     }
 }

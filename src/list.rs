@@ -179,9 +179,13 @@ impl Tdo {
 
     /// Add a todo list to the container.
     pub fn add_list(&mut self, list: TodoList) -> TdoResult<()> {
-        // TODO: Need to check if list already exists.
-        self.lists.push(list);
-        Ok(())
+        match self.get_list_index(&list.name) {
+            Ok(_) => Err(TodoError::NameAlreadyExists.into()),
+            Err(_) => {
+                self.lists.push(list);
+                Ok(())
+            }
+        }
     }
 
     /// Removes a list from the container.
@@ -202,8 +206,8 @@ impl Tdo {
     /// Add a todo to the todo list, identified by its name.
     ///
     /// This function returns a `ResultType` with a `TodoError::NoSuchList` if there is no matching list found.
-    pub fn add_todo(&mut self, list_name: &str, todo: Todo) -> Result<(), TodoError> {
-        match self.get_list_index(&list_name) {
+    pub fn add_todo(&mut self, list_name: Option<&str>, todo: Todo) -> TdoResult<()> {
+        match self.get_list_index(&list_name.unwrap_or("default")) {
             Ok(index) => {
                 self.lists[index].add(todo);
                 Ok(())
@@ -236,10 +240,10 @@ impl Tdo {
     }
 
 
-    fn get_list_index(&self, name: &str) -> Result<usize, TodoError> {
+    fn get_list_index(&self, name: &str) -> TdoResult<usize> {
         match self.lists.iter().position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
             Some(index) => Ok(index),
-            None => Err(TodoError::NoSuchList),
+            None => Err(TodoError::NoSuchList.into()),
         }
     }
 }
