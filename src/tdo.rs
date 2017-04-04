@@ -45,9 +45,17 @@ impl Tdo {
     /// # use tdo_core::tdo::*;
     /// let mut tdo = Tdo::load("foo.json");
     /// ```
-    pub fn load(path: &str) -> Result<Tdo, super::serde_json::Error> {
-        let file = File::open(path).unwrap();
-        super::serde_json::from_reader(&file)
+    pub fn load(path: &str) -> TdoResult<Tdo> {
+        match File::open(path){
+            Ok(file) => {
+                match super::serde_json::from_reader(&file) {
+                    Ok(tdo) => Ok(tdo),
+                    Err(_) => Err(StorageError::FileCorrupted.into())
+                }
+            },
+            Err(_) => Err(StorageError::FileNotFound.into())
+        }
+
     }
 
     /// Dump the `Tdo` container to a JSON file.
@@ -62,7 +70,7 @@ impl Tdo {
     /// let res = tdo.save("foo.json");
     /// assert_eq!(res.unwrap(), ());
     /// ```
-    pub fn save(&self, path: &str) -> Result<(), StorageError> {
+    pub fn save(&self, path: &str) -> TdoResult<()> {
         // TODO: At this point we could be much more precise about the error if we would include
         // the error from the file system as SaveFailure(ArbitraryErrorFromFS)
         //  -- Feliix42 (2017-03-14; 17:04)
@@ -71,7 +79,7 @@ impl Tdo {
                 let _ = super::serde_json::to_writer_pretty(&mut f, self);
                 Ok(())
             }
-            Err(_) => Err(StorageError::SaveFailure),
+            Err(_) => Err(StorageError::SaveFailure.into()),
         }
     }
 

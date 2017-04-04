@@ -49,20 +49,20 @@ impl TodoList {
     /// Mark a todo from the list with the given ID as done.
     ///
     /// This function returns a `ResultType`, which will contain a `TodoError::NotInList` if the list does not contain any todo with the given ID.
-    pub fn done_id(&mut self, id: u32) -> Result<(), TodoError> {
+    pub fn done_id(&mut self, id: u32) -> TdoResult<()> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list[index].set_done()),
-            None => Err(TodoError::NotInList),
+            None => Err(TodoError::NotInList.into()),
         }
     }
 
     /// Remove a todo with the given ID from the list.
     ///
     /// This function returns a `ResultType`, which will contain the removed Todo itself or a `TodoError::NotInList` if the list does not contain any todo with the given id.
-    pub fn remove_id(&mut self, id: u32) -> Result<Todo, TodoError> {
+    pub fn remove_id(&mut self, id: u32) -> TdoResult<Todo> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list.remove(index)),
-            None => Err(TodoError::NotInList),
+            None => Err(TodoError::NotInList.into()),
         }
     }
 
