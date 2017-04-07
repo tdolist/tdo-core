@@ -3,8 +3,9 @@
 /// Data Structure for a simple todo.
 ///
 /// A `Todo` item is the atomic unit within the `tdo` microcosm.
-/// It represents a single todo or task, which is identified by an ID. Information about its state
-/// (_done_ or _undone_) can be derived from the data structure as well as the title of the todo item.
+/// It represents a single todo or task, which is identified by an ID.
+/// Information about its state (_done_ or _undone_) can be derived from
+/// the data structure as well as the title of the todo item.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Todo {
     /// Unique identifier for every Todo.

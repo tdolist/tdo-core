@@ -5,7 +5,8 @@ use error::*;
 /// Simple todo list structure.
 ///
 /// Todos can be grouped together in so called todo lists (as in the real world).
-/// Therefore, the `TodoList` struct can be used. It's a simple data structure that holds a number of `Todo` items and offers all basic functions for managing them.
+/// Therefore, the `TodoList` struct can be used. It's a simple data structure that holds a
+/// number of `Todo` items and offers all basic functions for managing them.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TodoList {
     /// Name of the todo list.
@@ -48,7 +49,8 @@ impl TodoList {
 
     /// Mark a todo from the list with the given ID as done.
     ///
-    /// This function returns a `ResultType`, which will contain a `TodoError::NotInList` if the list does not contain any todo with the given ID.
+    /// This function returns a `ResultType`, which will contain a `TodoError::NotInList`
+    /// if the list does not contain any todo with the given ID.
     pub fn done_id(&mut self, id: u32) -> TdoResult<()> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list[index].set_done()),
@@ -58,7 +60,8 @@ impl TodoList {
 
     /// Remove a todo with the given ID from the list.
     ///
-    /// This function returns a `ResultType`, which will contain the removed Todo itself or a `TodoError::NotInList` if the list does not contain any todo with the given id.
+    /// This function returns a `ResultType`, which will contain the removed Todo itself or a
+    /// `TodoError::NotInList` if the list does not contain any todo with the given id.
     pub fn remove_id(&mut self, id: u32) -> TdoResult<Todo> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(self.list.remove(index)),

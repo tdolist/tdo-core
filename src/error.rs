@@ -6,7 +6,8 @@ use std::convert::From;
 
 /// Custom Result Type for tdo.
 ///
-/// This abbreviation is introduced since many functions throughout the crate return this type of result, which bundles all possible errors of the `tdo_core` crate.
+/// This abbreviation is introduced since many functions throughout the crate return
+/// this type of result, which bundles all possible errors of the `tdo_core` crate.
 pub type TdoResult<T> = Result<T, ErrorKind>;
 
 /// Enum to collect all types of tdo errors.
@@ -23,10 +24,11 @@ pub enum ErrorKind {
 /// The Errors that may occur while interacting with the file system.
 #[derive(Clone, Copy, Debug)]
 pub enum StorageError {
-    /// The accessed file is corrupted. This is most likely because someone edited the JSON file manually.
+    /// The accessed file is corrupted. This is most likely
+    /// because someone edited the JSON file manually.
     FileCorrupted,
-    // TODO: Actually use the FileCorrupted error type instead of throwing the Serde-Error. ^^
-    //  -- Feliix42 (2017-03-24; 17:39)
+    /// The conversion of an older format failed.
+    UnableToConvert,
     /// The data could not be written to the file.
     SaveFailure,
     /// The requested file could not be found.
@@ -45,6 +47,7 @@ impl Error for StorageError {
             StorageError::FileCorrupted => "File is corrupted",
             StorageError::SaveFailure => "File could not be saved",
             StorageError::FileNotFound => "File was not found",
+            StorageError::UnableToConvert => "File could not be converted automatically",
         }
     }
 }
