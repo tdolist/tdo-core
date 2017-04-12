@@ -143,7 +143,6 @@ impl Tdo {
     pub fn remove_id(&mut self, id: u32) {
         for list in self.to_owned().lists.into_iter() {
             let list_id = self.get_list_index(&list.name).unwrap();
-            println!("{:?}", &list_id);
             if self.lists[list_id].remove_id(id).is_ok(){
                 return
             }
