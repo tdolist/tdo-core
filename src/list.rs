@@ -41,31 +41,39 @@ impl TodoList {
     /// # let mut list = TodoList::new("important");
     /// list.add(Todo::new(0,"A first important todo"));
     /// ```
-
     pub fn add(&mut self, new_todo: Todo) {
         self.list.push(new_todo);
     }
 
-
+    ///Check if the list contains a todo with the given ID.
+    ///
+    /// This function returns a `TdoResult`, wich will contion a `TodoError::NotInList`
+    /// if the list does not contain any todo with the given ID or the position in the list.
+    pub fn contains_id(&self, id:u32) -> TdoResult<usize> {
+        match self.list.iter().position(|x| x.id == id) {
+            Some(index) => Ok(index),
+            None => Err(TodoError::NotInList.into()),
+        }
+    }
     /// Mark a todo from the list with the given ID as done.
     ///
-    /// This function returns a `ResultType`, which will contain a `TodoError::NotInList`
+    /// This function returns a `TdoResult`, which will contain a `TodoError::NotInList`
     /// if the list does not contain any todo with the given ID.
     pub fn done_id(&mut self, id: u32) -> TdoResult<()> {
-        match self.list.iter().position(|x| x.id == id) {
-            Some(index) => Ok(self.list[index].set_done()),
-            None => Err(TodoError::NotInList.into()),
+        match self.contains_id(id) {
+            Ok(index) => Ok(self.list[index].set_done()),
+            _ => Err(TodoError::NotInList.into()),
         }
     }
 
     /// Remove a todo with the given ID from the list.
     ///
-    /// This function returns a `ResultType`, which will contain the removed Todo itself or a
+    /// This function returns a `TdoResult`, which will contain the removed Todo itself or a
     /// `TodoError::NotInList` if the list does not contain any todo with the given id.
     pub fn remove_id(&mut self, id: u32) -> TdoResult<Todo> {
-        match self.list.iter().position(|x| x.id == id) {
-            Some(index) => Ok(self.list.remove(index)),
-            None => Err(TodoError::NotInList.into()),
+        match self.contains_id(id) {
+            Ok(index) => Ok(self.list.remove(index)),
+            _ => Err(TodoError::NotInList.into()),
         }
     }
 

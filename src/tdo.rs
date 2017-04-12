@@ -128,24 +128,40 @@ impl Tdo {
         }
     }
 
-    /// Cycle through all todo lists and mark a todo with the given IDas done.
+    /// Cycle through all todo lists and find the list which contains the todo with the given ID
+    ///
+    /// This function retuns a `ResultType` with a `TodoError::NotInList`
+    /// if there is no list found or a usize with the postition of the list in lists.
+    pub fn find_id(&self, id: u32) -> TdoResult<usize> {
+        for list in 0..self.lists.len() {
+            if self.lists[list].contains_id(id).is_ok() {
+                return Ok(list);
+            }
+        }
+        Err(TodoError::NotInList.into())
+    }
+    /// Cycle through all todo lists and mark a todo with the given ID as done.
     /// This function has no return value and thus won't indicate whether
     /// there was a matching todo found.
-    pub fn done_id(&mut self, id: u32) {
-        for list in 0..self.lists.len() {
-            let _ = self.lists[list].done_id(id);
-        }
+    pub fn done_id(&mut self, id: u32) -> TdoResult<()> {
+        let list = match self.find_id(id) {
+            Ok(list_id) => list_id,
+            Err(e) => return Err(e),
+        };
+        self.lists[list].done_id(id)
     }
 
     /// Cycle through all todo lists and remove a todo with the given id.
     /// This function has no return value and thus won't indicate whether
     /// there was a matching todo found.
-    pub fn remove_id(&mut self, id: u32) {
-        for list in self.to_owned().lists.into_iter() {
-            let list_id = self.get_list_index(&list.name).unwrap();
-            if self.lists[list_id].remove_id(id).is_ok(){
-                return
-            }
+    pub fn remove_id(&mut self, id: u32) -> TdoResult<()> {
+        let list = match self.find_id(id) {
+            Ok(list_id) => list_id,
+            Err(e) => return Err(e),
+        };
+        match self.lists[list].remove_id(id) {
+            Err(e) => Err(e),
+            _ => Ok(()),
         }
     }
 
@@ -168,7 +184,8 @@ impl Tdo {
     /// Get the highest ID used in the tdo container.
     pub fn get_highest_id(&self) -> u32 {
         self.lists.iter().fold(0, |acc, &ref x| {
-            x.list.iter().fold(acc, |inner_acc, &ref y| if inner_acc < y.id {y.id} else {inner_acc})
+            x.list.iter().fold(acc,
+                               |inner_acc, &ref y| if inner_acc < y.id { y.id } else { inner_acc })
         })
     }
 }
