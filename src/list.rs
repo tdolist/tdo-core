@@ -52,7 +52,7 @@ impl TodoList {
     pub fn contains_id(&self, id:u32) -> TdoResult<usize> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(index),
-            None => Err(TodoError::NotInList.into()),
+            None => Err(ErrorKind::TodoError(todo_error::ErrorKind::NotInList).into()),
         }
     }
     /// Mark a todo from the list with the given ID as done.
@@ -62,7 +62,7 @@ impl TodoList {
     pub fn done_id(&mut self, id: u32) -> TdoResult<()> {
         match self.contains_id(id) {
             Ok(index) => Ok(self.list[index].set_done()),
-            _ => Err(TodoError::NotInList.into()),
+            _ => Err(ErrorKind::TodoError(todo_error::ErrorKind::NotInList).into()),
         }
     }
 
@@ -73,7 +73,7 @@ impl TodoList {
     pub fn remove_id(&mut self, id: u32) -> TdoResult<Todo> {
         match self.contains_id(id) {
             Ok(index) => Ok(self.list.remove(index)),
-            _ => Err(TodoError::NotInList.into()),
+            _ => Err(ErrorKind::TodoError(todo_error::ErrorKind::NotInList).into()),
         }
     }
 

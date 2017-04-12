@@ -57,7 +57,7 @@ impl Tdo {
                     Err(_) => update_json(path),
                 }
             }
-            Err(_) => Err(StorageError::FileNotFound.into()),
+            Err(_) => Err(ErrorKind::StorageError(storage_error::ErrorKind::FileNotFound).into()),
         }
 
     }
@@ -84,14 +84,14 @@ impl Tdo {
                 let _ = super::serde_json::to_writer_pretty(&mut f, self);
                 Ok(())
             }
-            Err(_) => Err(StorageError::SaveFailure.into()),
+            Err(_) => Err(ErrorKind::StorageError(storage_error::ErrorKind::SaveFailure).into()),
         }
     }
 
     /// Add a todo list to the container.
     pub fn add_list(&mut self, list: TodoList) -> TdoResult<()> {
         match self.get_list_index(&list.name) {
-            Ok(_) => Err(TodoError::NameAlreadyExists.into()),
+            Ok(_) => Err(ErrorKind::TodoError(todo_error::ErrorKind::NameAlreadyExists).into()),
             Err(_) => {
                 self.lists.push(list);
                 Ok(())
@@ -102,14 +102,14 @@ impl Tdo {
     /// Removes a list from the container.
     pub fn remove_list(&mut self, list_name: &str) -> TdoResult<()> {
         if list_name == "default" {
-            Err(TodoError::CanNotRemoveDefault.into())
+            Err(ErrorKind::TodoError(todo_error::ErrorKind::CanNotRemoveDefault).into())
         } else {
             match self.get_list_index(list_name) {
                 Ok(index) => {
                     self.lists.remove(index);
                     Ok(())
                 }
-                Err(_) => Err(TodoError::NoSuchList.into()),
+                Err(_) => Err(ErrorKind::TodoError(todo_error::ErrorKind::NoSuchList).into()),
             }
         }
     }
@@ -138,7 +138,7 @@ impl Tdo {
                 return Ok(list);
             }
         }
-        Err(TodoError::NotInList.into())
+        Err(ErrorKind::TodoError(todo_error::ErrorKind::NotInList).into())
     }
     /// Cycle through all todo lists and mark a todo with the given ID as done.
     /// This function has no return value and thus won't indicate whether
@@ -177,7 +177,7 @@ impl Tdo {
             .iter()
             .position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
             Some(index) => Ok(index),
-            None => Err(TodoError::NoSuchList.into()),
+            None => Err(ErrorKind::TodoError(todo_error::ErrorKind::NoSuchList).into()),
         }
     }
 
@@ -196,7 +196,7 @@ fn update_json(path: &str) -> TdoResult<Tdo> {
     file.read_to_string(&mut data).unwrap();
     let mut json = match parse(&data) {
         Ok(content) => content,
-        Err(_) => return Err(StorageError::FileCorrupted.into()),
+        Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::FileCorrupted).into()),
     };
 
     let mut lists: Vec<TodoList> = vec![];
@@ -206,15 +206,15 @@ fn update_json(path: &str) -> TdoResult<Tdo> {
         for inner in outer.1.entries_mut() {
             let tdo_id = match inner.0.parse::<u32>() {
                 Ok(id) => id,
-                Err(_) => return Err(StorageError::UnableToConvert.into()),
+                Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
             };
             let done = match inner.1.pop().as_bool() {
                 Some(x) => x,
-                None => return Err(StorageError::UnableToConvert.into()),
+                None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
             };
             let tdo_name = match inner.1.pop().as_str() {
                 Some(x) => String::from(x),
-                None => return Err(StorageError::UnableToConvert.into()),
+                None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
             };
             let mut todo = Todo::new(tdo_id, &tdo_name);
             if done {

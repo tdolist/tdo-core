@@ -4,7 +4,8 @@ version = "0.1.0"
 authors = ["Felix Döring <development@felixdoering.com>", "Felix Wittwer <dev@felixwittwer.de>"]
 
 [dependencies]
+json = "0.11.6"
 serde = "0.9.5"
 serde_json = "0.9.4"
 serde_derive = "0.9.5"
-json = "0.11.6"
+error-chain = "0.10.0"

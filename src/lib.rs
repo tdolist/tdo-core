@@ -4,8 +4,8 @@
         trivial_casts, trivial_numeric_casts,
         unused_import_braces, unused_qualifications)]
 #![warn(missing_debug_implementations)]
-#[macro_use]
-extern crate serde_derive;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate error_chain;
 extern crate serde_json;
 extern crate json;
 

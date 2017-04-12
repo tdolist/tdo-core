@@ -1,98 +1,68 @@
 //! Custom Error Types for errors that may occur when handling todos (or lists).
 
-use std::error::Error;
-use std::fmt;
-use std::convert::From;
-
 /// Custom Result Type for tdo.
 ///
 /// This abbreviation is introduced since many functions throughout the crate return
 /// this type of result, which bundles all possible errors of the `tdo_core` crate.
-pub type TdoResult<T> = Result<T, ErrorKind>;
+pub type TdoResult<T> = Result<T>;
 
-/// Enum to collect all types of tdo errors.
-///
-/// This is simply a wrapper for all custom error classes the `tdo_crate` has.
-#[derive(Clone, Copy, Debug)]
-pub enum ErrorKind {
-    /// A storage-related error occured while interacting with the file system.
-    StorageError(StorageError),
-    /// An error within the tdo data structures occured.
-    TodoError(TodoError),
+
+/// Errors that can arise when working with todo lists.
+pub mod todo_error {
+    error_chain! {
+        errors {
+            /// The requested item is not in the list.
+            NotInList {
+                description("Todo is not in this list")
+            }
+            /// The requested todo list does not exist.
+            NoSuchList {
+                description("No such list")
+            }
+            /// The default list is tried to be removed.
+            CanNotRemoveDefault {
+                description("The default list can no be removed")
+            }
+            /// A list with the same name already exists.
+            NameAlreadyExists {
+                description("There already exists a list with this name")
+            }
+            /// A todo with the same ID already exists.
+            IDAlreadyExists {
+                description("There already exists a todo with this ID")
+            }
+        }
+    }
 }
 
 /// The Errors that may occur while interacting with the file system.
-#[derive(Clone, Copy, Debug)]
-pub enum StorageError {
-    /// The accessed file is corrupted. This is most likely
-    /// because someone edited the JSON file manually.
-    FileCorrupted,
-    /// The conversion of an older format failed.
-    UnableToConvert,
-    /// The data could not be written to the file.
-    SaveFailure,
-    /// The requested file could not be found.
-    FileNotFound,
-}
-
-impl fmt::Display for StorageError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl Error for StorageError {
-    fn description(&self) -> &str {
-        match *self {
-            StorageError::FileCorrupted => "File is corrupted",
-            StorageError::SaveFailure => "File could not be saved",
-            StorageError::FileNotFound => "File was not found",
-            StorageError::UnableToConvert => "File could not be converted automatically",
+pub mod storage_error {
+    error_chain! {
+        errors {
+            /// The accessed file is corrupted. This is most likely
+            /// because someone edited the JSON file manually.
+            FileCorrupted {
+                description("File is corrupted")
+            }
+            /// The data could not be written to the file.
+            SaveFailure {
+                description("File could not be saved")
+            }
+            /// The requested file could not be found.
+            FileNotFound {
+                description("File was not found")
+            }
+            /// The conversion of an older format failed.
+            UnableToConvert {
+                description("File could not be converted automatically")
+            }
         }
     }
 }
 
-impl From<StorageError> for ErrorKind {
-    fn from(e: StorageError) -> Self {
-        ErrorKind::StorageError(e)
-    }
-}
-
-/// Errors that can arise when working with todo lists.
-#[derive(Clone, Copy, Debug)]
-pub enum TodoError {
-    /// The requested item is not in the list.
-    NotInList,
-    /// The requested todo list does not exist.
-    NoSuchList,
-    /// The default list is tried to be removed.
-    CanNotRemoveDefault,
-    /// A list with the same name already exists.
-    NameAlreadyExists,
-    /// A todo with the same ID already exists.
-    IDAlreadyExists,
-}
-
-impl fmt::Display for TodoError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl Error for TodoError {
-    fn description(&self) -> &str {
-        match *self {
-            TodoError::NotInList => "Todo is not in this list",
-            TodoError::NoSuchList => "No such list",
-            TodoError::CanNotRemoveDefault => "The default list can no be removed",
-            TodoError::NameAlreadyExists => "There already exists a list with this name",
-            TodoError::IDAlreadyExists => "There already exists a todo with this ID",
-        }
-    }
-}
-
-impl From<TodoError> for ErrorKind {
-    fn from(e: TodoError) -> Self {
-        ErrorKind::TodoError(e)
+error_chain! {
+    links {
+        TodoError(todo_error::Error, todo_error::ErrorKind) #[doc = "An error within the tdo data structures occured."];
+        StorageError(storage_error::Error, storage_error::ErrorKind) #[doc = "A storage-related error occured while interacting with the file system."];
     }
 }
