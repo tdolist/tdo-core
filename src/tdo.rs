@@ -165,6 +165,13 @@ impl Tdo {
             None => Err(TodoError::NoSuchList.into()),
         }
     }
+
+    /// Get the highest ID used in the tdo container.
+    pub fn get_highest_id(&self) -> u32 {
+        self.lists.iter().fold(0, |acc, &ref x| {
+            x.list.iter().fold(acc, |inner_acc, &ref y| if inner_acc < y.id {y.id} else {inner_acc})
+        })
+    }
 }
 
 fn update_json(path: &str) -> TdoResult<Tdo> {
