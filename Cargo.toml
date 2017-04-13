@@ -2,6 +2,17 @@
 name = "tdo-core"
 version = "0.1.0"
 authors = ["Felix Döring <development@felixdoering.com>", "Felix Wittwer <dev@felixwittwer.de>"]
+description = "The core of every Rust-based tdo application"
+
+homepage = "https://tdolist.de/tdo"
+repository = "https://github.com/tdolist/tdo-core"
+documentation = "https://docs.rs/crate/tdo-core"
+
+license = "MIT"
+keywords = ["todo", "tdo", "tdolist", "terminal"]
+readme = "README.md"
+
+include = [".gitignore", ".travis.yml", "Cargo.toml", "tests/*.rs", "src/*.rs"]
 
 [dependencies]
 json = "0.11.6"
