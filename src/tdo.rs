@@ -172,6 +172,16 @@ impl Tdo {
         }
     }
 
+    /// Remove all todos that have been marked as _done_ from a given todo list.
+    pub fn clean_list(&mut self, list: &str) -> TdoResult<()>{
+        let index = match self.get_list_index(list){
+            Ok(index) => index,
+            Err(e) => return Err(e),
+        };
+        self.lists[index].clean();
+        Ok(())
+    }
+
     fn get_list_index(&self, name: &str) -> TdoResult<usize> {
         match self.lists
             .iter()

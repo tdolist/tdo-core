@@ -10,7 +10,7 @@ The core of every Rust-based tdo application.
 ```toml
 #Cargo.toml
 [dependencies]
-tdo-core = "0.1.0"
+tdo-core = "0.1.1"
 ```
 ## Documentation
 

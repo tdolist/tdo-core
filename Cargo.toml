@@ -1,6 +1,6 @@
 [package]
 name = "tdo-core"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Felix Döring <development@felixdoering.com>", "Felix Wittwer <dev@felixwittwer.de>"]
 description = "The core of every Rust-based tdo application"
 
