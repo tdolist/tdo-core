@@ -173,8 +173,8 @@ impl Tdo {
     }
 
     /// Remove all todos that have been marked as _done_ from a given todo list.
-    pub fn clean_list(&mut self, list: &str) -> TdoResult<()>{
-        let index = match self.get_list_index(list){
+    pub fn clean_list(&mut self, list: &str) -> TdoResult<()> {
+        let index = match self.get_list_index(list) {
             Ok(index) => index,
             Err(e) => return Err(e),
         };
@@ -184,8 +184,8 @@ impl Tdo {
 
     fn get_list_index(&self, name: &str) -> TdoResult<usize> {
         match self.lists
-            .iter()
-            .position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
+                  .iter()
+                  .position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
             Some(index) => Ok(index),
             None => Err(ErrorKind::TodoError(todo_error::ErrorKind::NoSuchList).into()),
         }
@@ -193,10 +193,24 @@ impl Tdo {
 
     /// Get the highest ID used in the tdo container.
     pub fn get_highest_id(&self) -> u32 {
-        self.lists.iter().fold(0, |acc, &ref x| {
-            x.list.iter().fold(acc,
-                               |inner_acc, &ref y| if inner_acc < y.id { y.id } else { inner_acc })
-        })
+        self.lists
+            .iter()
+            .fold(0, |acc, &ref x| {
+                x.list
+                    .iter()
+                    .fold(acc,
+                          |inner_acc, &ref y| if inner_acc < y.id { y.id } else { inner_acc })
+            })
+    }
+
+    /// Move a `todo` between two lists.
+    pub fn move_todo(&mut self, id: u32, target_list: &str) -> TdoResult<()> {
+        let src_index = self.find_id(id)?;
+        let target = self.get_list_index(target_list)?;
+
+        let todo = self.lists[src_index].pop_id(id)?;
+        self.lists[target].insert_todo(todo);
+        Ok(())
     }
 }
 
@@ -206,7 +220,9 @@ fn update_json(path: &str) -> TdoResult<Tdo> {
     file.read_to_string(&mut data).unwrap();
     let mut json = match parse(&data) {
         Ok(content) => content,
-        Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::FileCorrupted).into()),
+        Err(_) => {
+            return Err(ErrorKind::StorageError(storage_error::ErrorKind::FileCorrupted).into())
+        }
     };
 
     let mut lists: Vec<TodoList> = vec![];
@@ -214,18 +230,21 @@ fn update_json(path: &str) -> TdoResult<Tdo> {
     for outer in json.entries_mut() {
         let mut list = TodoList::new(outer.0);
         for inner in outer.1.entries_mut() {
-            let tdo_id = match inner.0.parse::<u32>() {
-                Ok(id) => id,
-                Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-            };
-            let done = match inner.1.pop().as_bool() {
-                Some(x) => x,
-                None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-            };
-            let tdo_name = match inner.1.pop().as_str() {
-                Some(x) => String::from(x),
-                None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-            };
+            let tdo_id =
+                match inner.0.parse::<u32>() {
+                    Ok(id) => id,
+                    Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                };
+            let done =
+                match inner.1.pop().as_bool() {
+                    Some(x) => x,
+                    None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                };
+            let tdo_name =
+                match inner.1.pop().as_str() {
+                    Some(x) => String::from(x),
+                    None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                };
             let mut todo = Todo::new(tdo_id, &tdo_name);
             if done {
                 todo.set_done();

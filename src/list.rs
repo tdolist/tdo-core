@@ -45,11 +45,11 @@ impl TodoList {
         self.list.push(new_todo);
     }
 
-    ///Check if the list contains a todo with the given ID.
+    /// Check if the list contains a todo with the given ID.
     ///
     /// This function returns a `TdoResult`, wich will contion a `TodoError::NotInList`
     /// if the list does not contain any todo with the given ID or the position in the list.
-    pub fn contains_id(&self, id:u32) -> TdoResult<usize> {
+    pub fn contains_id(&self, id: u32) -> TdoResult<usize> {
         match self.list.iter().position(|x| x.id == id) {
             Some(index) => Ok(index),
             None => Err(ErrorKind::TodoError(todo_error::ErrorKind::NotInList).into()),
@@ -97,6 +97,22 @@ impl TodoList {
                 let _ = self.remove_id(entry.id);
             }
         }
+    }
+
+    /// Remove a todo with a specific ID from the list.
+    pub fn pop_id(&mut self, todo_id: u32) -> TdoResult<Todo> {
+        let list_pos = self.contains_id(todo_id)?;
+
+        Ok(self.list.remove(list_pos))
+    }
+
+    /// Insert an existing todo into the list, preserving the ordering of the internal list.
+    pub fn insert_todo(&mut self, todo: Todo) {
+        let insert_id = self.list
+            .iter()
+            .fold(0, |acc, &ref x| if todo.id > x.id { acc + 1 } else { acc });
+
+        self.list.insert(insert_id, todo);
     }
 }
 
