@@ -3,6 +3,7 @@ use json::parse;
 use std::fs::File;
 use std::io::Read;
 use list::TodoList;
+use legacy::*;
 use todo::Todo;
 use error::*;
 
@@ -17,7 +18,9 @@ use error::*;
 pub struct Tdo {
     /// A vector of all todo lists.
     pub lists: Vec<TodoList>,
-    /// The tdo version the last dump was saved with.
+    //The Github API token.
+    access_token: Option<String>,
+    // The tdo version the last dump was saved with.
     version: String,
 }
 
@@ -34,6 +37,7 @@ impl Tdo {
     pub fn new() -> Tdo {
         Tdo {
             lists: vec![TodoList::default()],
+            access_token: None,
             version: env!("CARGO_PKG_VERSION").to_string(),
         }
     }
@@ -86,6 +90,16 @@ impl Tdo {
             }
             Err(_) => Err(ErrorKind::StorageError(storage_error::ErrorKind::SaveFailure).into()),
         }
+    }
+
+    /// Sets the GitHub access token.
+    pub fn set_gh_token(&mut self, token: &str) {
+        self.access_token = Some(token.to_string());
+    }
+
+    /// Returns an Option<String> of the private access_token field.
+    pub fn get_gh_token(&self) -> Option<String> {
+        self.access_token.to_owned()
     }
 
     /// Add a todo list to the container.
@@ -184,8 +198,8 @@ impl Tdo {
 
     fn get_list_index(&self, name: &str) -> TdoResult<usize> {
         match self.lists
-                  .iter()
-                  .position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
+            .iter()
+            .position(|x| x.name.to_lowercase() == name.to_string().to_lowercase()) {
             Some(index) => Ok(index),
             None => Err(ErrorKind::TodoError(todo_error::ErrorKind::NoSuchList).into()),
         }
@@ -215,47 +229,52 @@ impl Tdo {
 }
 
 fn update_json(path: &str) -> TdoResult<Tdo> {
-    let mut file = File::open(path).unwrap();
-    let mut data = String::new();
-    file.read_to_string(&mut data).unwrap();
-    let mut json = match parse(&data) {
-        Ok(content) => content,
+    match Tdo01::load(path) {
+        Ok(tdo) => Ok(tdo.into()),
         Err(_) => {
-            return Err(ErrorKind::StorageError(storage_error::ErrorKind::FileCorrupted).into())
-        }
-    };
+            println!("I have to do this here");
+            let mut file = File::open(path).unwrap();
+            let mut data = String::new();
+            file.read_to_string(&mut data).unwrap();
+            let mut json = match parse(&data) {
+                Ok(content) => content,
+                Err(_) => {
+                    return Err(ErrorKind::StorageError(storage_error::ErrorKind::FileCorrupted)
+                        .into())
+                }
+            };
 
-    let mut lists: Vec<TodoList> = vec![];
+            let mut lists: Vec<TodoList> = vec![];
 
-    for outer in json.entries_mut() {
-        let mut list = TodoList::new(outer.0);
-        for inner in outer.1.entries_mut() {
-            let tdo_id =
-                match inner.0.parse::<u32>() {
-                    Ok(id) => id,
-                    Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-                };
-            let done =
-                match inner.1.pop().as_bool() {
-                    Some(x) => x,
-                    None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-                };
-            let tdo_name =
-                match inner.1.pop().as_str() {
-                    Some(x) => String::from(x),
-                    None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
-                };
-            let mut todo = Todo::new(tdo_id, &tdo_name);
-            if done {
-                todo.set_done();
+            for outer in json.entries_mut() {
+                let mut list = TodoList::new(outer.0);
+                for inner in outer.1.entries_mut() {
+                    let tdo_id = match inner.0.parse::<u32>() {
+                        Ok(id) => id,
+                        Err(_) => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                    };
+                    let done = match inner.1.pop().as_bool() {
+                        Some(x) => x,
+                        None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                    };
+                    let tdo_name = match inner.1.pop().as_str() {
+                        Some(x) => String::from(x),
+                        None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
+                    };
+                    let mut todo = Todo::new(tdo_id, &tdo_name);
+                    if done {
+                        todo.set_done();
+                    }
+                    list.add(todo);
+                }
+                lists.push(list);
             }
-            list.add(todo);
+            let tdo = Tdo {
+                lists: lists,
+                access_token: None,
+                version: env!("CARGO_PKG_VERSION").to_string(),
+            };
+            Ok(tdo)
         }
-        lists.push(list);
     }
-    let tdo = Tdo {
-        lists: lists,
-        version: env!("CARGO_PKG_VERSION").to_string(),
-    };
-    Ok(tdo)
 }
