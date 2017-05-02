@@ -1,7 +1,7 @@
 //! General implementation of tdos base structure.
 use json::parse;
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Write, stdout, stdin};
 use list::TodoList;
 use legacy::*;
 use todo::Todo;
@@ -93,8 +93,19 @@ impl Tdo {
     }
 
     /// Sets the GitHub access token.
-    pub fn set_gh_token(&mut self, token: &str) {
-        self.access_token = Some(token.to_string());
+    pub fn set_gh_token(&mut self, token: Option<&str>) {
+        let gh_token = match token {
+            Some(x) => x.to_string(),
+            None => {
+                print!("Please generate an access token ({})\nand enter a valid accesstoken: ",
+                       "https://github.com/settings/tokens/new?scopes=repo&description=tdolist");
+                stdout().flush().ok().expect("Could not flush stdout!");
+                let mut answer = String::new();
+                stdin().read_line(&mut answer).unwrap();
+                answer.trim().to_string()
+            }
+        };
+        self.access_token = Some(gh_token);
     }
 
     /// Returns an Option<String> of the private access_token field.
