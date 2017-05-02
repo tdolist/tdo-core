@@ -10,8 +10,7 @@ mod github {
         let mut tdo = tdo::Tdo::new();
         let x = tdo.get_gh_token();
         assert_eq!(x, None);
-        println!("{:?}", x);
-        tdo.set_gh_token("ThisIsNoWorkingAuthTokenJustForTestingTheMethod");
+        tdo.set_gh_token(Some("ThisIsNoWorkingAuthTokenJustForTestingTheMethod"));
         assert_eq!(tdo.get_gh_token().unwrap(),
                    "ThisIsNoWorkingAuthTokenJustForTestingTheMethod".to_string());
     }
