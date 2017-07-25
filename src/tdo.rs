@@ -233,6 +233,11 @@ impl Tdo {
         let src_index = self.find_id(id)?;
         let target = self.get_list_index(target_list)?;
 
+        //Check if todo is a github Issue
+        let list_index = self.lists[src_index].contains_id(id)?;
+        if let Some(_) = self.lists[src_index].list[list_index].github {
+            return Err(ErrorKind::GithubError(github_error::ErrorKind::NotAllowedToMove).into())
+        }
         let todo = self.lists[src_index].pop_id(id)?;
         self.lists[target].insert_todo(todo);
         Ok(())
@@ -272,7 +277,7 @@ fn update_json(path: &str) -> TdoResult<Tdo> {
                         Some(x) => String::from(x),
                         None => return Err(ErrorKind::StorageError(storage_error::ErrorKind::UnableToConvert).into()),
                     };
-                    let mut todo = Todo::new(tdo_id, &tdo_name);
+                    let mut todo = Todo::new(tdo_id, &tdo_name, None);
                     if done {
                         todo.set_done();
                     }

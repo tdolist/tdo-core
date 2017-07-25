@@ -14,16 +14,19 @@ pub struct Todo {
     pub name: String,
     /// Status of the todo.
     pub done: bool,
+    /// Optional GitHub issue.
+    pub github: Option<GitHub>,
 }
 
 
 impl Todo {
     /// Constructor. Creates a new Todo item.
-    pub fn new(id: u32, name: &str) -> Todo {
+    pub fn new(id: u32, name: &str, github: Option<GitHub>) -> Todo {
         Todo {
             id: id,
             name: name.to_string(),
             done: false,
+            github: github,
         }
     }
 
@@ -41,4 +44,35 @@ impl Todo {
     pub fn set_undone(&mut self) {
         self.done = false;
     }
+}
+
+/// Data Structure for a represented Github issue in an todo.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitHub {
+    /// Name of the repository (owner/repo).
+    pub repo: String,
+    /// Number of the issue.
+    pub issue_number: u32,
+}
+
+impl GitHub {
+    /// Constructor. Creates a new GitHub item.
+    pub fn new(repo:&str, issue_number:u32) -> GitHub {
+        GitHub {
+            repo: repo.to_owned(),
+            issue_number: issue_number,
+        }
+    }
+}
+
+#[allow(missing_docs)]
+/// Data Structure to parse responses from the Github API.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GHIssueResponse {
+    /// Repository URL.
+    pub url : String,
+    /// Issue number.
+    pub number: u32,
+    /// Current state of the Issue.
+    pub state: String,
 }
