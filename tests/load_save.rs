@@ -9,8 +9,8 @@ mod storage {
     fn save() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         let res = tdo.save("foo.json").unwrap();
         assert_eq!(res, ());
@@ -20,7 +20,7 @@ mod storage {
     fn load() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
 
         tdo.save("foo2.json").unwrap();
 

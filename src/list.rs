@@ -39,7 +39,7 @@ impl TodoList {
     /// # use tdo_core::list::*;
     /// # use tdo_core::todo::*;
     /// # let mut list = TodoList::new("important");
-    /// list.add(Todo::new(0,"A first important todo"));
+    /// list.add(Todo::new(0,"A first important todo", None));
     /// ```
     pub fn add(&mut self, new_todo: Todo) {
         self.list.push(new_todo);

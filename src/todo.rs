@@ -57,7 +57,7 @@ pub struct GitHub {
 
 impl GitHub {
     /// Constructor. Creates a new GitHub item.
-    pub fn new(repo:&str, issue_number:u32) -> GitHub {
+    pub fn new(repo: &str, issue_number: u32) -> GitHub {
         GitHub {
             repo: repo.to_owned(),
             issue_number: issue_number,
@@ -65,12 +65,11 @@ impl GitHub {
     }
 }
 
-#[allow(missing_docs)]
 /// Data Structure to parse responses from the Github API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GHIssueResponse {
     /// Repository URL.
-    pub url : String,
+    pub url: String,
     /// Issue number.
     pub number: u32,
     /// Current state of the Issue.

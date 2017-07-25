@@ -9,12 +9,12 @@ mod interact {
     fn clean_lists() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         let mut tdo2 = tdo::Tdo::new();
         tdo2.add_list(list::TodoList::new("test")).unwrap();
-        tdo2.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo2.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         tdo.lists[1].done_id(0).unwrap();
         tdo.clean_lists();
@@ -25,11 +25,11 @@ mod interact {
     fn clean_list() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
         tdo.add_list(list::TodoList::new("test2")).unwrap();
-        tdo.add_todo(Some("test2"), todo::Todo::new(2, "First Entry")).unwrap();
-        tdo.add_todo(Some("test2"), todo::Todo::new(3, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test2"), todo::Todo::new(2, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test2"), todo::Todo::new(3, "Second Entry", None)).unwrap();
 
         tdo.lists[1].done_id(0).unwrap();
         tdo.lists[2].done_id(2).unwrap();
@@ -42,8 +42,8 @@ mod interact {
     fn remove_from_list() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
         tdo.remove_id(0).unwrap();
         assert_eq!(tdo.lists[1].list.len(), 1);
     }
@@ -59,15 +59,15 @@ mod interact {
     #[should_panic]
     fn add_to_not_existing_list() {
         let mut tdo = tdo::Tdo::new();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
     }
 
     #[test]
     fn set_done_list() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         tdo.lists[1].done_id(0).unwrap();
         assert!(tdo.lists[1].list[0].done);
@@ -77,12 +77,12 @@ mod interact {
     fn clean_tdo() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         let mut tdo2 = tdo::Tdo::new();
         tdo2.add_list(list::TodoList::new("test")).unwrap();
-        tdo2.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo2.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         tdo.done_id(0).unwrap();
         tdo.clean_lists();
@@ -93,8 +93,8 @@ mod interact {
     fn set_done_tdo() {
         let mut tdo = tdo::Tdo::new();
         tdo.add_list(list::TodoList::new("test")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry")).unwrap();
-        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry")).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(0, "First Entry", None)).unwrap();
+        tdo.add_todo(Some("test"), todo::Todo::new(1, "Second Entry", None)).unwrap();
 
         tdo.done_id(0).unwrap();
         assert!(tdo.lists[1].list[0].done);
