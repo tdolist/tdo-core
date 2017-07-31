@@ -51,6 +51,10 @@ pub mod github_error {
             NotAllowedToMove {
                 description("A github issue is not allowed to be moved out ouf the default list")
             }
+            /// Not a guthub issue eroor
+            NoIssueAsigned {
+                description("There is no github issue asigned to this todo")
+            }
             /// Unknown error
             UnknownError {
                 description("An unknown error occured")
