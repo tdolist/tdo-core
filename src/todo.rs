@@ -74,4 +74,6 @@ pub struct GHIssueResponse {
     pub number: u32,
     /// Current state of the Issue.
     pub state: String,
+    /// Title of the Issue.
+    pub title: String,
 }
