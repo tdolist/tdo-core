@@ -41,7 +41,7 @@ pub mod github_error {
         errors {
             /// Repository does not exist
             DoesNotExist {
-                description("Repository does not exist")
+                description("Repository does not exist or you have no access to it")
             }
             /// Bad credentials
             BadCredentials {
